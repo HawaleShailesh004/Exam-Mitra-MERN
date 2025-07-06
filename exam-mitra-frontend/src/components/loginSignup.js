@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { account, ID } from "../Database/appwriteConfig";
-import { useLocation, useNavigate } from "react-router-dom"; // make sure you're using react-router
+import { useLocation, useNavigate } from "react-router-dom";
 import "../CSS/loginSignup.css";
 import { FcGoogle } from "react-icons/fc";
-
+import API from "../utils/api";
 import { useUser } from "../context/userContext";
 
 const LoginSignup = () => {
-  const { setUser } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { setUser } = useUser();
+
   const redirectPath =
     new URLSearchParams(location.search).get("redirect") || "/";
+
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,33 +27,29 @@ const LoginSignup = () => {
     setLoading(true);
 
     try {
+      let response;
       if (isLogin) {
-        await account.createEmailPasswordSession(email, password);
+        response = await API.post("/auth/login", { email, password });
       } else {
-        await account.create(ID.unique(), email, password, name);
-        await account.createEmailPasswordSession(email, password);
+        response = await API.post("/auth/register", { name, email, password });
       }
 
-      const user = await account.get();
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
+
       navigate(redirectPath);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Something went wrong");
+      setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = () => {
-    // Save the original redirect path before starting OAuth
-    localStorage.setItem("redirectAfterLogin", redirectPath);
-
-    account.createOAuth2Session(
-      "google",
-      window.location.origin + "/oauth-success", // We'll handle it here
-      window.location.origin + "/login"
-    );
+    window.location.href = "http://localhost:4000/auth/google";
   };
 
   return (
@@ -102,15 +100,14 @@ const LoginSignup = () => {
             {isLogin ? "Sign Up" : "Login"}
           </span>
         </p>
-        <a style={{ color: "var(--color-text-primary)", WebkitTapHighlightColor: "transparent"}} href="/">
-          <p
-            style={{
-              marginTop: "-1rem",
-              
-            }}
-          >
-            Skip for Now
-          </p>
+        <a
+          style={{
+            color: "var(--color-text-primary)",
+            WebkitTapHighlightColor: "transparent",
+          }}
+          href="/"
+        >
+          <p style={{ marginTop: "-1rem" }}>Skip for Now</p>
         </a>
       </form>
     </div>

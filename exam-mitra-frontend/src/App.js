@@ -30,17 +30,12 @@ const App = () => {
           <Route path="/selection" element={<SelectionPage />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/questions" element={<QuestionListingPage />} />
-         <Route path="/edit-paper/:paperId" element={<EditPaper />} />
-
-
-
+          <Route path="/edit-paper/:paperId" element={<EditPaper />} />
           <Route path="/answer/:id" element={<AnswerPage />} />
           <Route path="/oauth-success" element={<OauthSuccess />} />
-          
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/pdf" element={<PDFExport />} />
-
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

@@ -5,6 +5,7 @@ import { FaFilePdf } from "react-icons/fa";
 import { FiFilter } from "react-icons/fi";
 import html2pdf from "html2pdf.js";
 import debounce from "lodash.debounce";
+import API from "../utils/api"; // axios instance with JWT token
 
 import Toast from "./Toast";
 
@@ -17,7 +18,7 @@ import { downloadAsDocx } from "../utils/downloadDocx";
 import "../CSS/Home.css";
 import "../CSS/QuestionListingPage.css";
 
-import { databases } from "../Database/appwriteConfig";
+
 import { useUser } from "../context/userContext";
 import { Query } from "appwrite";
 
@@ -48,14 +49,9 @@ const QuestionListingPage = () => {
   const debouncedUpdate = useRef(
     debounce(async (id, field, newValue) => {
       try {
-        await databases.updateDocument(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-          id,
-          {
-            [field === "status" ? "isDone" : "isReviosn"]: newValue,
-          }
-        );
+        await API.patch(`/questions/${id}`, {
+          [field === "status" ? "isDone" : "isRevision"]: newValue,
+        });
       } catch (err) {
         console.error("❌ Update failed:", err);
       }
@@ -67,6 +63,7 @@ const QuestionListingPage = () => {
 
     const fetchData = async () => {
       try {
+          if (userLoading) return;
         if (!user) {
           setError("🔐 Please login to view questions.");
           setLoading(false);
@@ -79,35 +76,30 @@ const QuestionListingPage = () => {
           return;
         }
 
-        const paper = await databases.getDocument(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-          paperId
-        );
+        const paperRes = await API.get(`/papers/${paperId}`);
+        const paper = paperRes.data;
+
+        console.log(paper)
 
         setCurrentSubject({
           subject: paper.title,
           paperCode: "",
-          paperId: paper.$id,
+          paperId: paper._id,
         });
 
-        const qRes = await databases.listDocuments(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-          [Query.equal("paperId", paperId)]
-        );
-
-        const transformed = qRes.documents.map((q) => ({
-          id: q.$id,
+        const qRes = await API.get(`/questions/by-paper/${paperId}`);
+        const transformed = qRes.data.map((q) => ({
+          id: q._id,
           text: q.questionText,
           marks: q.marks,
           frequency: q.frequency,
           status: q.isDone,
-          revision: q.isReviosn,
+          revision: q.isRevision,
           answer: q.answers || "",
         }));
 
         setQuestions(transformed);
+        console.log(transformed)
         setLoading(false);
       } catch (err) {
         console.error("❌ Error:", err);
@@ -191,50 +183,49 @@ const QuestionListingPage = () => {
     }, 100); // short delay to ensure render
   };
 
- const handleFilteredDocx = (filterOption, sortOption) => {
-  let filtered = [...questions];
+  const handleFilteredDocx = (filterOption, sortOption) => {
+    let filtered = [...questions];
 
-  switch (filterOption) {
-    case "done":
-      filtered = filtered.filter((q) => q.status);
-      break;
-    case "answered":
-      filtered = filtered.filter((q) => q.answer && q.answer.trim() !== "");
-      break;
-    case "revision":
-      filtered = filtered.filter((q) => q.revision);
-      break;
-    case "below5":
-      filtered = filtered.filter((q) => q.marks < 5);
-      break;
-    case "above5":
-      filtered = filtered.filter((q) => q.marks >= 5);
-      break;
-    default:
-      break;
-  }
+    switch (filterOption) {
+      case "done":
+        filtered = filtered.filter((q) => q.status);
+        break;
+      case "answered":
+        filtered = filtered.filter((q) => q.answer && q.answer.trim() !== "");
+        break;
+      case "revision":
+        filtered = filtered.filter((q) => q.revision);
+        break;
+      case "below5":
+        filtered = filtered.filter((q) => q.marks < 5);
+        break;
+      case "above5":
+        filtered = filtered.filter((q) => q.marks >= 5);
+        break;
+      default:
+        break;
+    }
 
-  filtered.sort((a, b) =>
-    sortOption === "marks" ? b.marks - a.marks : b.frequency - a.frequency
-  );
-
-  setToastMsg("📥 Preparing your DOCX...");
-  setExportQuestions(filtered); // trigger render of updated PDFExportBlock
-
-  // Wait for next render frame using a short delay
-  setTimeout(() => {
-    const content = document.querySelector(".pdf-markdown");
-    if (!content) return alert("DOCX content not found");
-
-    downloadAsDocx(
-      content.innerHTML,
-      `${currentSubject.subject}_Questions_${getCurrentTimeStamp()}.docx`
+    filtered.sort((a, b) =>
+      sortOption === "marks" ? b.marks - a.marks : b.frequency - a.frequency
     );
 
-    setToastMsg("✅ DOCX Downloaded Successfully!");
-  }, 100);
-};
+    setToastMsg("📥 Preparing your DOCX...");
+    setExportQuestions(filtered); // trigger render of updated PDFExportBlock
 
+    // Wait for next render frame using a short delay
+    setTimeout(() => {
+      const content = document.querySelector(".pdf-markdown");
+      if (!content) return alert("DOCX content not found");
+
+      downloadAsDocx(
+        content.innerHTML,
+        `${currentSubject.subject}_Questions_${getCurrentTimeStamp()}.docx`
+      );
+
+      setToastMsg("✅ DOCX Downloaded Successfully!");
+    }, 100);
+  };
 
   const getCurrentTimeStamp = () => {
     const now = new Date();

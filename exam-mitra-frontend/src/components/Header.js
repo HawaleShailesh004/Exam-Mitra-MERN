@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../CSS/Header.css";
 import { Link, useNavigate } from "react-router-dom";
-import { account } from "../Database/appwriteConfig";
 import { useUser } from "../context/userContext";
 
 const Header = () => {
@@ -11,11 +10,11 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
-  const handleLogout = async () => {
-    await account.deleteSessions("current");
-    localStorage.setItem("manualLogout", "true");
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
-    navigate("/");
+    closeMenuAndRedirect("/");
   };
 
   const toggleMenu = () => {
@@ -24,10 +23,19 @@ const Header = () => {
       setTimeout(() => {
         setMenuOpen(false);
         setIsClosing(false);
-      }, 300); // match CSS animation duration
+      }, 300);
     } else {
       setMenuOpen(true);
     }
+  };
+
+  const closeMenuAndRedirect = (path) => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setMenuOpen(false);
+      setIsClosing(false);
+      navigate(path);
+    }, 300);
   };
 
   return (
@@ -44,24 +52,24 @@ const Header = () => {
         <span></span>
       </div>
 
-      {/* Slide Menu with animation class */}
+      {/* Slide Menu */}
       <div
         className={`nav-menu ${
           menuOpen ? (isClosing ? "closing" : "open") : ""
         }`}
       >
         <ul className="nav-links">
-          <li onClick={toggleMenu}>
+          <li onClick={() => closeMenuAndRedirect("/")}>
             <Link to="/">Home</Link>
           </li>
-          <li onClick={toggleMenu}>
+          <li onClick={() => closeMenuAndRedirect("/upload")}>
             <Link to="/upload">Upload</Link>
           </li>
-          <li onClick={toggleMenu}>
+          <li onClick={() => closeMenuAndRedirect("/selection")}>
             <Link to="/selection">Browse</Link>
           </li>
           {user && (
-            <li onClick={toggleMenu}>
+            <li onClick={() => closeMenuAndRedirect("/dashboard")}>
               <Link to="/dashboard">Dashboard</Link>
             </li>
           )}
@@ -70,7 +78,9 @@ const Header = () => {
         <div className="nav-buttons">
           {user ? (
             <>
-              <span className="username">👤 {user.name.split(" ")[0]}</span>
+              <span className="username">
+                👤 {user?.name?.split(" ")[0] || "User"}
+              </span>
               <button className="btn-secondary" onClick={handleLogout}>
                 Logout
               </button>
@@ -79,19 +89,13 @@ const Header = () => {
             <>
               <button
                 className="btn-secondary"
-                onClick={() => {
-                  navigate("/login");
-                  toggleMenu();
-                }}
+                onClick={() => closeMenuAndRedirect("/login")}
               >
                 Login
               </button>
               <button
                 className="btn-primary"
-                onClick={() => {
-                  navigate("/login");
-                  toggleMenu();
-                }}
+                onClick={() => closeMenuAndRedirect("/login")}
               >
                 Sign Up
               </button>

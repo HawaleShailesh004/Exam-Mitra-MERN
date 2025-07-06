@@ -1,44 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { databases } from "../Database/appwriteConfig";
-import { Query, ID } from "appwrite";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import "../CSS/EditPaper.css";
 
 import { useUser } from "../context/userContext";
-
-import { useParams } from "react-router-dom";
-import "../CSS/EditPaper.css";
+import API from "../utils/api";
 
 const EditPaper = () => {
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const location = useLocation();
 
   const { user } = useUser();
   const navigate = useNavigate();
-
   const { paperId } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const paperRes = await databases.getDocument(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-          paperId
-        );
-        setTitle(paperRes.title);
-
-        const qRes = await databases.listDocuments(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-          [Query.equal("paperId", paperId)]
-        );
-
-        setQuestions(qRes.documents);
+        const res = await API.get(`/papers/${paperId}`);
+        setTitle(res.data.title);
+        setQuestions(res.data.questions);
       } catch (err) {
         console.error("❌ Failed to fetch paper or questions:", err);
         setError("Something went wrong!");
@@ -46,32 +30,23 @@ const EditPaper = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [paperId]);
 
   const handleSave = async () => {
     try {
-      await databases.updateDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-        paperId,
-        { title }
-      );
+      await API.put(`/papers/${paperId}`, { title });
 
       await Promise.all(
-        questions.map((q) =>
-          databases.updateDocument(
-            process.env.REACT_APP_APPWRITE_DATABASE_ID,
-            process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-            q.$id,
-            {
+        questions
+          .filter((q) => !q.isNew)
+          .map((q) =>
+            API.patch(`/questions/${q._id}`, {
               questionText: q.questionText,
               marks: q.marks,
               frequency: q.frequency,
-            }
+            })
           )
-        )
       );
 
       alert("✅ Paper updated!");
@@ -94,12 +69,8 @@ const EditPaper = () => {
     if (!confirmDel) return;
 
     try {
-      await databases.deleteDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-        id
-      );
-      setQuestions((prev) => prev.filter((q) => q.$id !== id));
+      await API.delete(`/questions/${id}`);
+      setQuestions((prev) => prev.filter((q) => q._id !== id));
     } catch (err) {
       console.error("❌ Delete failed:", err);
     }
@@ -107,7 +78,7 @@ const EditPaper = () => {
 
   const addQuestion = () => {
     const newQ = {
-      $id: ID.unique(),
+      _id: Date.now().toString(),
       questionText: "",
       marks: 0,
       frequency: 0,
@@ -118,25 +89,21 @@ const EditPaper = () => {
 
   const saveNewQuestions = async () => {
     const newOnes = questions.filter((q) => q.isNew && q.questionText.trim());
+
+    if (newOnes.length === 0) return alert("No new questions to save.");
+
     try {
-      await Promise.all(
-        newOnes.map((q) =>
-          databases.createDocument(
-            process.env.REACT_APP_APPWRITE_DATABASE_ID,
-            process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-            ID.unique(),
-            {
-              userId: user.$id, // ✅ Required!
-              paperId,
-              questionText: q.questionText,
-              marks: q.marks,
-              frequency: q.frequency,
-              isDone: false,
-              isReviosn: false,
-            }
-          )
-        )
-      );
+      await API.post("/questions", {
+        paperId,
+        questions: newOnes.map((q) => ({
+          questionText: q.questionText,
+          marks: q.marks,
+          frequency: q.frequency,
+          isDone: false,
+          isReviosn: false,
+        })),
+      });
+
       alert("✅ New questions added.");
       navigate("/dashboard");
     } catch (err) {
@@ -172,6 +139,7 @@ const EditPaper = () => {
             Add Question
           </button>
         </div>
+
         <div className="edit-paper-question-table">
           <div className="question-list-container">
             <table>
@@ -186,7 +154,7 @@ const EditPaper = () => {
               </thead>
               <tbody>
                 {questions.map((q, i) => (
-                  <tr key={q.$id}>
+                  <tr key={q._id}>
                     <td className="que-no">{i + 1}</td>
                     <td className="que-text">
                       <input
@@ -218,7 +186,7 @@ const EditPaper = () => {
                     <td>
                       <button
                         className="delete-question"
-                        onClick={() => deleteQuestion(q.$id)}
+                        onClick={() => deleteQuestion(q._id)}
                       >
                         Delete
                       </button>

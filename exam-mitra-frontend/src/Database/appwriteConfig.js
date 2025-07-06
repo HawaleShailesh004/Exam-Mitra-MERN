@@ -1,11 +1,19 @@
-import { Client, Account, Databases, ID, Permission, Role, Functions } from 'appwrite';
+export const account = {
+  get: () => Promise.resolve({ name: "Guest" }),
+  deleteSessions: () => Promise.resolve(),
+  createEmailPasswordSession: () => Promise.resolve(),
+  createOAuth2Session: () => Promise.resolve(),
+  create: () => Promise.resolve(),
+};
 
-const client = new Client()
-  .setEndpoint(process.env.REACT_APP_APPWRITE_ENDPOINT) // ✅ Your endpoint
-  .setProject(process.env.REACT_APP_APPWRITE_PROJECT_ID); // ✅ Your project ID
+export const ID = {
+  unique: () => "mock-id",
+};
 
-const account = new Account(client);
-const databases = new Databases(client);
-const functions = new Functions(client);
-
-export { client, account, databases, ID, Permission, Role, functions};
+// 👇 Dummy mock for Appwrite's "databases" object
+export const databases = {
+  listDocuments: () => Promise.resolve({ documents: [] }),
+  createDocument: () => Promise.resolve({}),
+  updateDocument: () => Promise.resolve({}),
+  deleteDocument: () => Promise.resolve({}),
+};

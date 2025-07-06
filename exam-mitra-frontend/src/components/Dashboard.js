@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../CSS/Dashboard.css";
 import { useUser } from "../context/userContext";
-import { databases } from "../Database/appwriteConfig";
+import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { Query } from "appwrite";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -33,13 +32,13 @@ const Dashboard = () => {
       if (wasLoggedOut) {
         localStorage.removeItem("manualLogout");
         navigate("/login?redirect=/dashboard");
-      // } else {
-      //   const confirmLogin = window.confirm(
-      //     "🔐 You need to be logged in to view Dashboard. Do you want to login now?"
-      //   );
-      //   if (confirmLogin) {
-      //     navigate("/login");
-      //   } 
+        // } else {
+        //   const confirmLogin = window.confirm(
+        //     "🔐 You need to be logged in to view Dashboard. Do you want to login now?"
+        //   );
+        //   if (confirmLogin) {
+        //     navigate("/login");
+        //   }
       }
     }
   }, [user, userLoading, navigate]);
@@ -47,26 +46,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchPapers = async () => {
       try {
-        const res = await databases.listDocuments(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-          [Query.equal("userId", user.$id)]
-        );
-
-        const questionsPromises = res.documents.map((paper) =>
-          databases.listDocuments(
-            process.env.REACT_APP_APPWRITE_DATABASE_ID,
-            process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-            [Query.equal("paperId", paper.$id)]
-          )
-        );
-
-        const allQuestions = await Promise.all(questionsPromises);
-
-        const enrichedPapers = res.documents.map((paper, idx) => ({
+        const res = await API.get("/papers"); // Auto fetches for logged-in user via JWT
+        const enrichedPapers = res.data.map((paper) => ({
           ...paper,
-          questions: allQuestions[idx].documents,
-          totalQuestions: allQuestions[idx].documents.length,
+          totalQuestions: paper.questions?.length || 0,
         }));
 
         setPapers(enrichedPapers);
@@ -88,23 +71,20 @@ const Dashboard = () => {
   };
 
   const deletePaper = async (paperId) => {
-    const confirmDelete = window.confirm(
-      "⚠️ Are you sure you want to delete this paper?"
-    );
-    if (!confirmDelete) return;
+  const confirmDelete = window.confirm(
+    "⚠️ Are you sure you want to delete this paper?"
+  );
+  if (!confirmDelete) return;
 
-    try {
-      await databases.deleteDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-        paperId
-      );
-      setPapers((prev) => prev.filter((p) => p.$id !== paperId));
-    } catch (err) {
-      console.error("❌ Failed to delete paper:", err);
-      alert("Failed to delete. Try again later.");
-    }
-  };
+  try {
+    await API.delete(`/papers/${paperId}`);
+    setPapers((prev) => prev.filter((p) => p._id !== paperId));
+  } catch (err) {
+    console.error("❌ Failed to delete paper:", err);
+    alert("Failed to delete. Try again later.");
+  }
+};
+
 
   const calcProgress = (qList) => {
     if (!qList || qList.length === 0) return 0;
@@ -198,7 +178,7 @@ const Dashboard = () => {
                 className={`subject-card slideInUp ${getConfidenceClass(
                   confidence
                 )}`}
-                key={paper.$id}
+                key={paper._id}
               >
                 <h2>{paper.title}</h2>
                 <div className="progress-bar">
@@ -214,19 +194,19 @@ const Dashboard = () => {
                 <p className="card-metric">Confidence: {confidence}%</p>
                 <div className="btn-container">
                   <button
-                    onClick={() => goToPaper(paper.$id)}
+                    onClick={() => goToPaper(paper._id)}
                     className="continue-btn"
                   >
                     📘 Continue
                   </button>
                   <button
-                    onClick={() => goToEditPaper(paper.$id)}
+                    onClick={() => goToEditPaper(paper._id)}
                     className="edit-btn continue-btn"
                   >
                     ✏️ Edit
                   </button>
                   <button
-                    onClick={() => deletePaper(paper.$id)}
+                    onClick={() => deletePaper(paper._id)}
                     id="delete-btn"
                   >
                     🗑️ Delete
@@ -276,13 +256,13 @@ const Dashboard = () => {
               <ul className="revision-list">
                 {papers.flatMap((paper) =>
                   paper.questions
-                    .filter((q) => q.isReviosn)
+                    .filter((q) => q.isRevision)
                     .slice(0, 5)
                     .map((q) => (
-                      <li key={q.$id}>
+                      <li key={q._id}>
                         <span className="rev-question">{q.questionText}</span>
                         <button
-                          onClick={() => goToPaper(paper.$id)}
+                          onClick={() => goToPaper(paper._id)}
                           className="rev-btn"
                         >
                           Review

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import "../CSS/Upload.css";
 
+import API from "../utils/api";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -16,6 +18,7 @@ const Upload = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [progressMessage, setProgressMessage] = useState("");
   const [extractedText, setExtractedText] = useState("");
   const [questions, setQuestions] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
@@ -24,6 +27,33 @@ const Upload = () => {
 
   const navigate = useNavigate();
   const { user } = useUser();
+
+  const loadingMessages = [
+    "🧠 Thinking like a professor...",
+    "📘 Summarizing questions from dusty old papers...",
+    "🔍 Zooming in on every mark-worthy question...",
+    "⚙️ Running turbo OCR magic...",
+    "📄 Flipping virtual pages like a ninja...",
+    "🤖 Training an AI to become your exam buddy...",
+    "✍️ Spotting important 5 markers...",
+    "🪄 Cleaning handwritten mess... AI style!",
+  ];
+
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      let index = 0;
+      setProgressMessage(loadingMessages[index]);
+      interval = setInterval(() => {
+        index = (index + 1) % loadingMessages.length;
+        setProgressMessage(loadingMessages[index]);
+      }, 3500); // rotate every 3.5s
+    } else {
+      setProgressMessage("");
+    }
+
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     const source = localStorage.getItem("uploadSource");
@@ -89,76 +119,61 @@ const Upload = () => {
     setQuestions(newQuestions);
   };
 
-  const saveQuestions = async () => {
-    if (!user) {
-      const confirmLogin = window.confirm(
-        "🔐 You need to be logged in to save questions and start preparation. Do you want to login now?"
-      );
+const saveQuestions = async () => {
+  if (!user) {
+    const confirmLogin = window.confirm(
+      "🔐 You need to be logged in to save questions and start preparation. Do you want to login now?"
+    );
 
-      if (confirmLogin) {
-        const backup = {
-          extractedText,
-          questions,
-          subjectDetails,
-          files: files.map((f) => f.name),
-        };
-        localStorage.setItem("uploadSession", JSON.stringify(backup));
-        navigate("/login?redirect=/upload");
-      }
-
-      return;
+    if (confirmLogin) {
+      const backup = {
+        extractedText,
+        questions,
+        subjectDetails,
+        files: files.map((f) => f.name),
+      };
+      localStorage.setItem("uploadSession", JSON.stringify(backup));
+      navigate("/login?redirect=/upload");
     }
 
-    const paperId = ID.unique();
+    return;
+  }
+
+  try {
     const paperTitle = subjectDetails?.subject || "Untitled Subject";
     const paperCode = subjectDetails?.paperCode || "";
-    const now = new Date().toISOString();
+    const fullTitle = `${paperTitle}${paperCode ? ` (${paperCode})` : ""}`;
 
-    try {
-      await databases.createDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_PAPERS_COLLECTION_ID,
-        paperId,
-        {
-          userId: user.$id,
-          title: `${paperTitle}${paperCode ? ` (${paperCode})` : ""}`,
-          rawText: extractedText,
-          uploadedAt: now,
-        }
-      );
+    // 1. Save Paper
+    const paperRes = await API.post("/papers", {
+      title: fullTitle,
+      rawText: extractedText,
+    });
 
-      const promises = questions.map(async (q, idx) => {
-        try {
-          await databases.createDocument(
-            process.env.REACT_APP_APPWRITE_DATABASE_ID,
-            process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-            ID.unique(),
-            {
-              userId: user.$id,
-              paperId: paperId,
-              questionText: q.text || `Question ${idx + 1}`,
-              marks: q.marks || 0,
-              frequency: q.frequency || 1,
-              isDone: q.status || false,
-              tags: [],
-              answers: "",
-              isReviosn: q.revision || false,
-            }
-          );
-        } catch (err) {
-          console.error(`❌ Error saving question ${idx + 1}:`, err.message);
-        }
-      });
+    const paperId = paperRes.data._id;
 
-      await Promise.all(promises);
+    // 2. Save Questions
+    await API.post("/questions", {
+      paperId,
+      questions: questions.map((q, idx) => ({
+        questionText: q.text || `Question ${idx + 1}`,
+        marks: q.marks || 0,
+        frequency: q.frequency || 1,
+        isDone: q.status || false,
+        tags: [],
+        answers: "",
+        isRevision: q.revision || false,
+      })),
+    });
 
-      alert(`✅ ${questions.length} Questions saved for '${paperTitle}'`);
-      navigate("/questions?paperId=" + paperId);
-    } catch (err) {
-      console.error("❌ Error saving to Appwrite:", err);
-      alert("❌ Failed to save data. Please check console for errors.");
-    }
-  };
+    alert(`✅ ${questions.length} Questions saved for '${fullTitle}'`);
+    navigate(`/questions?paperId=${paperId}`);
+  } catch (err) {
+    console.error("❌ Error saving to DB:", err);
+    alert("❌ Failed to save data. Please check console for errors.");
+  }
+};
+
 
   const EditableRow = ({ index, question, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -262,7 +277,7 @@ const Upload = () => {
       setStatus("📡 Sending extracted text to backend...");
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/extract-text`,
+        `http://localhost:4000/extract/extract-text`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -375,7 +390,10 @@ const Upload = () => {
                         }
                       />
                     ) : (
-                      <p className="card-que-text"><strong>{i+1}. </strong>{q.text}`</p>
+                      <p className="card-que-text">
+                        <strong>{i + 1}. </strong>
+                        {q.text}`
+                      </p>
                     )}
 
                     <div className="card-checkbox-container">
@@ -390,7 +408,6 @@ const Upload = () => {
                               marks: parseInt(e.target.value),
                             })
                           }
-                     
                           disabled={!q.isEditing}
                         />
                       </label>
@@ -405,7 +422,6 @@ const Upload = () => {
                               frequency: parseInt(e.target.value),
                             })
                           }
-                       
                           disabled={!q.isEditing}
                         />
                       </label>
@@ -415,7 +431,8 @@ const Upload = () => {
                       <button
                         className={
                           q.isEditing ? "card-save-btn" : "card-edit-btn"
-                        } id="edit-save-btn"
+                        }
+                        id="edit-save-btn"
                         onClick={() => {
                           if (q.isEditing) {
                             // Save changes
@@ -473,7 +490,7 @@ const Upload = () => {
               {loading && (
                 <div className="loading-spinner">
                   <div className="loader"></div>
-                  <p>Processing PDF and extracting questions...</p>
+                  <p>{progressMessage}</p>
                 </div>
               )}
 

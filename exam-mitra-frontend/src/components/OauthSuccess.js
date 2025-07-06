@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { account } from "../Database/appwriteConfig";
 import { useUser } from "../context/userContext";
-
-import Header from "./Header";
-import Footer from "./Footer";
+import API from "../utils/api";
 
 import "../CSS/OauthSuccess.css";
 
@@ -13,30 +10,36 @@ const OauthSuccess = () => {
   const { setUser } = useUser();
 
   useEffect(() => {
-    const finishLogin = async () => {
-      try {
-        const user = await account.get();
-        setUser(user);
+    const token = new URLSearchParams(window.location.search).get("token");
 
-        const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
+    if (token) {
+      localStorage.setItem("token", token);
 
-        navigate("/dashboard");
-      } catch (err) {
-        console.error("OAuth login failed", err);
-        navigate("/login");
-      }
-    };
-
-    finishLogin();
+      // Set auth header temporarily (or API.js already does that globally)
+      API.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          setUser(res.data.user);
+          navigate("/dashboard");
+        })
+        .catch((err) => {
+          console.error("OAuth login failed", err);
+          localStorage.removeItem("token");
+          navigate("/login");
+        });
+    } else {
+      navigate("/login");
+    }
   }, []);
 
   return (
-    <>
-      <div className="login-loading">
-        <div class="loader"></div>
-        <p>Logging you in, please wait...</p>
-      </div>
-    </>
+    <div className="login-loading">
+      <div className="loader"></div>
+      <p>Logging you in, please wait...</p>
+    </div>
   );
 };
 

@@ -7,13 +7,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate, useParams } from "react-router-dom";
 
+import API from "../utils/api";
+
 import promptTemplates from "../utils/promptTemplates.js";
 import "../CSS/Home.css";
 import "../CSS/AnswerPage.css";
 import Footer from "./Footer.js";
 import Header from "./Header.js";
 
-import { databases } from "../Database/appwriteConfig";
 import { useUser } from "../context/userContext";
 
 const AnswerPage = () => {
@@ -90,14 +91,12 @@ const AnswerPage = () => {
   useEffect(() => {
     const fetchQuestion = async () => {
       try {
-        const res = await databases.getDocument(
-          process.env.REACT_APP_APPWRITE_DATABASE_ID,
-          process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-          id
-        );
-        setQuestionData(res);
-        setPaperId(res.paperId);
-        const allAnswers = JSON.parse(res.answers || "[]");
+        // Express API
+        const res = await API.get(`/questions/single/${id}`);
+        setQuestionData(res.data);
+        setPaperId(res.data.paperId);
+
+        const allAnswers = JSON.parse(res.data.answers || "[]");
         const match = allAnswers.find((a) => a.ansType === selectedType);
         if (match) {
           setAnswer(match.value);
@@ -181,14 +180,9 @@ const AnswerPage = () => {
     if (!questionData) return;
 
     try {
-      await databases.updateDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-        questionData.$id,
-        {
-          [field === "status" ? "isDone" : "isReviosn"]: value,
-        }
-      );
+      await API.patch(`/questions/${questionData._id}`, {
+        [field === "status" ? "isDone" : "isRevision"]: value,
+      });
 
       setQuestionData((prev) => ({ ...prev, [field]: value }));
     } catch (err) {
@@ -204,14 +198,9 @@ const AnswerPage = () => {
         { ansType: selectedType, value: answer },
       ];
 
-      await databases.updateDocument(
-        process.env.REACT_APP_APPWRITE_DATABASE_ID,
-        process.env.REACT_APP_APPWRITE_QUESTIONS_COLLECTION_ID,
-        questionData.$id,
-        {
-          answers: JSON.stringify(updatedAnswers),
-        }
-      );
+      await API.patch(`/questions/${questionData._id}`, {
+        answers: JSON.stringify(updatedAnswers),
+      });
 
       setIsSaved(true);
       alert("✅ Answer Saved");

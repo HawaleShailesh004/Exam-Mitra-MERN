@@ -10,9 +10,25 @@ dotenv.config();
 // 🧠 LLM Question Extraction
 // =======================
 async function getQuestionsFromText(extractedText) {
-  const prompt = `Extract academic-style questions from the following academic texts. Each text corresponds to the same subject & same subject code. Return a JSON array where each item corresponds to one paper only. Merge all questions into a single array. For each question, include frequency (based on whole raw text).
+  const prompt = `You are given raw academic exam content. Your task is to extract academic-style exam questions from it.
 
-Return ONLY a JSON array in this format:
+Each question belongs to a **single subject** and **single paper code**. All extracted questions must be merged into a single JSON array under one subject and paper code. 
+
+For each extracted question:
+- Include the **text** of the question (remove duplicates).
+- Include the **marks** assigned the **first time** the question appeared (do not multiply marks by frequency).
+- Include **frequency**, i.e., how many times this exact question appears in the text.
+- Set **status** and **revision** fields as **false** (default values).
+- Number questions using a unique **id** starting from 1.
+
+Return a **JSON array**. Each item represents a single paper:
+- "subject" should be the subject name if available, or null.
+- "paperCode" should be the paper code if available, or null.
+- "questions" should be an array of extracted questions as described above.
+
+⚠️ Output ONLY the JSON array. No commentary, no markdown, no code formatting.
+
+Format example:
 [
   {
     "subject": "Subject Name (or null)",
@@ -30,7 +46,8 @@ Return ONLY a JSON array in this format:
   }
 ]
 
-Here is the academic content:\n${extractedText}`;
+Here is the academic content:
+${extractedText}`;
 
   const res = await axios.post(
     "https://api.groq.com/openai/v1/chat/completions",
@@ -65,6 +82,7 @@ Here is the academic content:\n${extractedText}`;
 router.post("/extract-text", async (req, res) => {
   try {
     const { text } = req.body;
+    console.log("Request for TExt Extraction")
 
     if (!text || typeof text !== "string" || text.trim().length < 10) {
       return res.status(400).json({ error: "Invalid or empty text provided." });

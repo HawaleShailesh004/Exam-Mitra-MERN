@@ -1,18 +1,33 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { account } from "../Database/appwriteConfig";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import API from "../utils/api"; // axios with baseURL + token
 
-export const UserContext = createContext();
+const UserContext = createContext();
+export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [userLoading, setUserLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true); // ✅ new
 
   useEffect(() => {
-    account
-      .get()
-      .then((u) => setUser(u))
-      .catch(() => setUser(null))
-      .finally(() => setUserLoading(false));
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setUser(null);
+      setUserLoading(false); // ✅ done checking
+      return;
+    }
+
+    API.get("/auth/me")
+      .then((res) => {
+        setUser(res.data.user);
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        setUser(null);
+      })
+      .finally(() => {
+        setUserLoading(false); // ✅ done either way
+      });
   }, []);
 
   return (
@@ -21,5 +36,3 @@ export const UserProvider = ({ children }) => {
     </UserContext.Provider>
   );
 };
-
-export const useUser = () => useContext(UserContext);

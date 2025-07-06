@@ -27,6 +27,17 @@ const SelectionPage = () => {
   const branches = branchesList;
   const semesters = [3, 4, 5, 6, 7, 8];
 
+  const loadingMessages = [
+    "Analyzing your paper like a topper 🧠...",
+    "Scanning for important questions 📚...",
+    "Summoning the exam gods 🕉️...",
+    "Breaking down complex questions like a pro 🧩...",
+    "Extracting gold nuggets from question papers 💎...",
+    "Looking for the 5-marker questions you love 🔍...",
+    "Almost there... Stay sharp! ⚡",
+    "Thinking like an examiner 🤓...",
+  ];
+
   // Roman numerals for proper subject title formatting
   const romanNumerals = [
     "I",
@@ -67,6 +78,23 @@ const SelectionPage = () => {
     setSelectedQps([]);
   };
 
+  useEffect(() => {
+    let interval;
+    if (extloading) {
+      let index = 0;
+      setProgressText(loadingMessages[index]);
+      interval = setInterval(() => {
+        index = (index + 1) % loadingMessages.length;
+        setProgressText(loadingMessages[index]);
+      }, 3500); // every 3.5 seconds
+    } else {
+      clearInterval(interval);
+      setProgressText("");
+    }
+
+    return () => clearInterval(interval);
+  }, [extloading]);
+
   // Fetch subjects when branch or semester changes
   useEffect(() => {
     if (!branch || !semester) return;
@@ -76,9 +104,7 @@ const SelectionPage = () => {
       setError("");
       try {
         const res = await fetch(
-          `${
-            process.env.REACT_APP_API_BASE_URL
-          }/dropdowns/subjects?branch=${encodeURIComponent(
+          `http://localhost:4000/dropdown/dropdowns/subjects?branch=${encodeURIComponent(
             branch
           )}&semester=${semester}`
         );
@@ -110,9 +136,7 @@ const SelectionPage = () => {
 
     try {
       const res = await fetch(
-        `${
-          process.env.REACT_APP_API_BASE_URL
-        }/dropdowns/papers?branch=${encodeURIComponent(
+        `http://localhost:4000/dropdown/dropdowns/papers?branch=${encodeURIComponent(
           branch
         )}&semester=${semester}&subject=${encodeURIComponent(subject.title)}`
       );
@@ -144,7 +168,7 @@ const SelectionPage = () => {
       let mergedText = "";
 
       for (let i = 0; i < urls.length; i++) {
-        setProgressText(`Processing paper ${i + 1} of ${urls.length}...`);
+        // setProgressText(`Processing paper ${i + 1} of ${urls.length}...`);
         const text = await extractTextFromPdfUrlUsingOCR(
           urls[i],
           setProgressText
@@ -154,7 +178,7 @@ const SelectionPage = () => {
 
       // Post extracted text to backend for question extraction
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/extract-text`,
+        `http://localhost:4000/extract/extract-text`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -259,9 +283,6 @@ const SelectionPage = () => {
             </div>
 
             {/* Fetch QPs Button */}
-        
-       
-        
 
             <button
               className="continue-btn"
@@ -348,10 +369,10 @@ const SelectionPage = () => {
                     >
                       {!extloading ? "Extract Questions" : "Extracting.."}
                     </button>
-                        {extloading && <div class="loader"></div>}
+                    {extloading && <div className="loader"></div>}
                     {progressText && (
                       <p className="progressText-text error-text">
-                        Processing Selected PDFs & Extracting Question..
+                        {progressText}
                       </p>
                     )}
                   </div>
