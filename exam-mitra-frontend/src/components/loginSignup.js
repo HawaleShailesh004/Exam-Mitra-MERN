@@ -49,7 +49,7 @@ const LoginSignup = () => {
   };
 
   const handleGoogleAuth = () => {
-    window.location.href = "http://localhost:4000/auth/google";
+    window.location.href = `${process.env.REACT_APP_API_BASE_URL}/auth/google`;
   };
 
   return (

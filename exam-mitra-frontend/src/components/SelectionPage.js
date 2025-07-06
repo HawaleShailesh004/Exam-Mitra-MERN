@@ -6,24 +6,23 @@ import "../CSS/SelectionPage.css";
 import { useNavigate } from "react-router-dom";
 import { extractTextFromPdfUrlUsingOCR } from "../utils/ocrPdfFromUrl";
 import branchesList from "../utils/branches.js";
+import API from "../utils/api"; // ✅ use centralized axios
 
 const SelectionPage = () => {
   const navigate = useNavigate();
 
-  // State variables to track user selections and data
   const [branch, setBranch] = useState("");
   const [semester, setSemester] = useState("");
   const [subject, setSubject] = useState(null);
   const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(false); // For subject loading
-  const [qpLoading, setQpLoading] = useState(false); // For question papers loading
+  const [loading, setLoading] = useState(false);
+  const [qpLoading, setQpLoading] = useState(false);
   const [error, setError] = useState("");
   const [progressText, setProgressText] = useState("");
   const [extloading, setExtLoading] = useState(false);
-  const [qps, setQps] = useState([]); // Question papers fetched
-  const [selectedQps, setSelectedQps] = useState([]); // User-selected QPs URLs
+  const [qps, setQps] = useState([]);
+  const [selectedQps, setSelectedQps] = useState([]);
 
-  // Static data: branches and semesters available
   const branches = branchesList;
   const semesters = [3, 4, 5, 6, 7, 8];
 
@@ -38,21 +37,7 @@ const SelectionPage = () => {
     "Thinking like an examiner 🤓...",
   ];
 
-  // Roman numerals for proper subject title formatting
-  const romanNumerals = [
-    "I",
-    "II",
-    "III",
-    "IV",
-    "V",
-    "VI",
-    "VII",
-    "VIII",
-    "IX",
-    "X",
-  ];
-
-  // Format subject title: capitalizes words except Roman numerals
+  const romanNumerals = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
   const formatTitle = (title) =>
     title
       .split(" ")
@@ -63,7 +48,6 @@ const SelectionPage = () => {
       )
       .join(" ");
 
-  // Handler for branch dropdown change
   const handleBranchChange = (e) => {
     setBranch(e.target.value);
     setSubject(null);
@@ -71,7 +55,6 @@ const SelectionPage = () => {
     setSelectedQps([]);
   };
 
-  // Handler for semester dropdown change
   const handleSemesterChange = (e) => {
     setSemester(e.target.value);
     setQps([]);
@@ -86,7 +69,7 @@ const SelectionPage = () => {
       interval = setInterval(() => {
         index = (index + 1) % loadingMessages.length;
         setProgressText(loadingMessages[index]);
-      }, 3500); // every 3.5 seconds
+      }, 3500);
     } else {
       clearInterval(interval);
       setProgressText("");
@@ -95,7 +78,6 @@ const SelectionPage = () => {
     return () => clearInterval(interval);
   }, [extloading]);
 
-  // Fetch subjects when branch or semester changes
   useEffect(() => {
     if (!branch || !semester) return;
 
@@ -103,13 +85,10 @@ const SelectionPage = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(
-          `http://localhost:4000/dropdown/dropdowns/subjects?branch=${encodeURIComponent(
-            branch
-          )}&semester=${semester}`
-        );
-        const data = await res.json();
-        const cleanedSubjects = (data.subjects || []).map((sub) => ({
+        const res = await API.get("/dropdown/dropdowns/subjects", {
+          params: { branch, semester },
+        });
+        const cleanedSubjects = (res.data.subjects || []).map((sub) => ({
           ...sub,
           title: formatTitle(sub.title),
         }));
@@ -125,7 +104,6 @@ const SelectionPage = () => {
     fetchSubjects();
   }, [branch, semester]);
 
-  // Fetch question papers from backend API for selected branch, semester & subject
   const handleWebFetchStart = async () => {
     if (!branch || !semester || !subject) return;
 
@@ -135,40 +113,39 @@ const SelectionPage = () => {
     setSelectedQps([]);
 
     try {
-      const res = await fetch(
-        `http://localhost:4000/dropdown/dropdowns/papers?branch=${encodeURIComponent(
-          branch
-        )}&semester=${semester}&subject=${encodeURIComponent(subject.title)}`
-      );
-      const data = await res.json();
+      const res = await API.get("/dropdown/dropdowns/papers", {
+        params: {
+          branch,
+          semester,
+          subject: subject.title,
+        },
+      });
 
-      if (data?.papers?.length) {
-        setQps(data.papers);
+      if (res.data?.papers?.length) {
+        setQps(res.data.papers);
       } else {
         setError("No question papers found for selected subject.");
       }
     } catch (err) {
+      console.error("Failed to fetch QPs:", err);
       setError("Failed to fetch question papers. Please try again.");
-      console.error(err);
     } finally {
       setQpLoading(false);
     }
   };
 
-  // Extract questions from selected paper URLs using OCR + backend
-  async function handleExtractFromUrls(urls) {
+  const handleExtractFromUrls = async (urls) => {
     if (!urls.length) {
       alert("Please select at least one question paper.");
       return;
     }
 
     try {
-      setProgressText("");
       setExtLoading(true);
+      setProgressText("");
       let mergedText = "";
 
       for (let i = 0; i < urls.length; i++) {
-        // setProgressText(`Processing paper ${i + 1} of ${urls.length}...`);
         const text = await extractTextFromPdfUrlUsingOCR(
           urls[i],
           setProgressText
@@ -176,43 +153,33 @@ const SelectionPage = () => {
         mergedText += text + "\n\n";
       }
 
-      // Post extracted text to backend for question extraction
-      const response = await fetch(
-        `http://localhost:4000/extract/extract-text`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: mergedText }),
-        }
-      );
-      const data = await response.json();
+      const res = await API.post("/extract/extract-text", {
+        text: mergedText,
+      });
 
-      if (!data || !data.questions?.length) {
-        throw new Error("No questions found.");
-      }
+      const { questions, extractedText, subjectDetails } = res.data;
 
-      // Save extracted data to localStorage for next page
+      if (!questions?.length) throw new Error("No questions extracted");
+
       localStorage.setItem(
         "uploadSession",
         JSON.stringify({
-          extractedText: data.extractedText,
-          questions: data.questions,
-          subjectDetails: data.subjectDetails,
+          extractedText,
+          questions,
+          subjectDetails,
           files: urls.map((url) => new URL(url).pathname.split("/").pop()),
         })
       );
       localStorage.setItem("uploadSource", "selection");
-
-      // Navigate to upload page to show extracted questions
       navigate("/upload");
     } catch (err) {
-      console.error("OCR Extract failed:", err);
+      console.error("❌ OCR extract failed:", err);
       setProgressText("Failed to extract questions.");
     } finally {
-      setQpLoading(false);
       setExtLoading(false);
+      setQpLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -226,14 +193,9 @@ const SelectionPage = () => {
           </p>
 
           <div className="selection-form">
-            {/* Branch Dropdown */}
             <div className="dropdown">
-              <label htmlFor="branch-select">Branch:</label>
-              <select
-                id="branch-select"
-                value={branch}
-                onChange={handleBranchChange}
-              >
+              <label>Branch:</label>
+              <select value={branch} onChange={handleBranchChange}>
                 <option value="">Select Branch</option>
                 {branches.map((b, idx) => (
                   <option key={idx} value={b}>
@@ -243,14 +205,9 @@ const SelectionPage = () => {
               </select>
             </div>
 
-            {/* Semester Dropdown */}
             <div className="dropdown">
-              <label htmlFor="semester-select">Semester:</label>
-              <select
-                id="semester-select"
-                value={semester}
-                onChange={handleSemesterChange}
-              >
+              <label>Semester:</label>
+              <select value={semester} onChange={handleSemesterChange}>
                 <option value="">Select Semester</option>
                 {semesters.map((s, idx) => (
                   <option key={idx} value={s}>
@@ -260,18 +217,16 @@ const SelectionPage = () => {
               </select>
             </div>
 
-            {/* Subject Dropdown */}
             <div className="dropdown" id="subject-dropdown">
-              <label htmlFor="subject-select">Subject:</label>
+              <label>Subject:</label>
               <select
-                id="subject-select"
                 value={subject ? JSON.stringify(subject) : ""}
                 onChange={(e) => setSubject(JSON.parse(e.target.value))}
                 disabled={!branch || !semester}
               >
                 <option value="">Select Subject</option>
                 {loading ? (
-                  <option disabled>Loading subjects...</option>
+                  <option disabled>Loading...</option>
                 ) : (
                   subjects.map((s, idx) => (
                     <option key={idx} value={JSON.stringify(s)}>
@@ -282,8 +237,6 @@ const SelectionPage = () => {
               </select>
             </div>
 
-            {/* Fetch QPs Button */}
-
             <button
               className="continue-btn"
               disabled={!subject || qpLoading}
@@ -293,16 +246,12 @@ const SelectionPage = () => {
               {qpLoading ? "Fetching..." : "Fetch QPs from Web"}
             </button>
 
-            {/* Error Message */}
             {error && <p className="error-text">{error}</p>}
-
-            {/* Info Text */}
             <p className="info-text">
               Tip: You can change selections anytime from your dashboard!
             </p>
           </div>
 
-          {/* Display available question papers */}
           {qps.length > 0 && (
             <div className="qps-table-section fadeIn">
               <h2>Available Question Papers</h2>
@@ -322,25 +271,21 @@ const SelectionPage = () => {
                       <tr key={idx} className="fadeInRow">
                         <td>{year}</td>
                         <td>{month}</td>
-                        <td id="button-td">
-                          {/* Toggle select/deselect QP */}
+                        <td>
                           <button
                             className={`qp-table-btn ${
                               isSelected ? "selected" : "action-btn"
                             }`}
-                            onClick={() => {
+                            onClick={() =>
                               setSelectedQps((prev) =>
                                 isSelected
                                   ? prev.filter((url) => url !== qp.url)
                                   : [...prev, qp.url]
-                              );
-                            }}
-                            type="button"
+                              )
+                            }
                           >
                             {isSelected ? "Remove" : "Add to Preparation"}
                           </button>
-
-                          {/* View/download link */}
                           <a
                             className="qp-table-btn download-btn"
                             href={qp.url}
@@ -357,7 +302,6 @@ const SelectionPage = () => {
                 </tbody>
               </table>
 
-              {/* Summary & Extract button */}
               <div className="selection-summary">
                 <p>{selectedQps.length} paper(s) selected.</p>
                 {selectedQps.length > 0 && (
@@ -367,7 +311,7 @@ const SelectionPage = () => {
                       onClick={() => handleExtractFromUrls(selectedQps)}
                       type="button"
                     >
-                      {!extloading ? "Extract Questions" : "Extracting.."}
+                      {extloading ? "Extracting..." : "Extract Questions"}
                     </button>
                     {extloading && <div className="loader"></div>}
                     {progressText && (

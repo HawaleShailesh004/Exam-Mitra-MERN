@@ -119,61 +119,60 @@ const Upload = () => {
     setQuestions(newQuestions);
   };
 
-const saveQuestions = async () => {
-  if (!user) {
-    const confirmLogin = window.confirm(
-      "🔐 You need to be logged in to save questions and start preparation. Do you want to login now?"
-    );
+  const saveQuestions = async () => {
+    if (!user) {
+      const confirmLogin = window.confirm(
+        "🔐 You need to be logged in to save questions and start preparation. Do you want to login now?"
+      );
 
-    if (confirmLogin) {
-      const backup = {
-        extractedText,
-        questions,
-        subjectDetails,
-        files: files.map((f) => f.name),
-      };
-      localStorage.setItem("uploadSession", JSON.stringify(backup));
-      navigate("/login?redirect=/upload");
+      if (confirmLogin) {
+        const backup = {
+          extractedText,
+          questions,
+          subjectDetails,
+          files: files.map((f) => f.name),
+        };
+        localStorage.setItem("uploadSession", JSON.stringify(backup));
+        navigate("/login?redirect=/upload");
+      }
+
+      return;
     }
 
-    return;
-  }
+    try {
+      const paperTitle = subjectDetails?.subject || "Untitled Subject";
+      const paperCode = subjectDetails?.paperCode || "";
+      const fullTitle = `${paperTitle}${paperCode ? ` (${paperCode})` : ""}`;
 
-  try {
-    const paperTitle = subjectDetails?.subject || "Untitled Subject";
-    const paperCode = subjectDetails?.paperCode || "";
-    const fullTitle = `${paperTitle}${paperCode ? ` (${paperCode})` : ""}`;
+      // 1. Save Paper
+      const paperRes = await API.post("/papers", {
+        title: fullTitle,
+        rawText: extractedText,
+      });
 
-    // 1. Save Paper
-    const paperRes = await API.post("/papers", {
-      title: fullTitle,
-      rawText: extractedText,
-    });
+      const paperId = paperRes.data._id;
 
-    const paperId = paperRes.data._id;
+      // 2. Save Questions
+      await API.post("/questions", {
+        paperId,
+        questions: questions.map((q, idx) => ({
+          questionText: q.text || `Question ${idx + 1}`,
+          marks: q.marks || 0,
+          frequency: q.frequency || 1,
+          isDone: q.status || false,
+          tags: [],
+          answers: "",
+          isRevision: q.revision || false,
+        })),
+      });
 
-    // 2. Save Questions
-    await API.post("/questions", {
-      paperId,
-      questions: questions.map((q, idx) => ({
-        questionText: q.text || `Question ${idx + 1}`,
-        marks: q.marks || 0,
-        frequency: q.frequency || 1,
-        isDone: q.status || false,
-        tags: [],
-        answers: "",
-        isRevision: q.revision || false,
-      })),
-    });
-
-    alert(`✅ ${questions.length} Questions saved for '${fullTitle}'`);
-    navigate(`/questions?paperId=${paperId}`);
-  } catch (err) {
-    console.error("❌ Error saving to DB:", err);
-    alert("❌ Failed to save data. Please check console for errors.");
-  }
-};
-
+      alert(`✅ ${questions.length} Questions saved for '${fullTitle}'`);
+      navigate(`/questions?paperId=${paperId}`);
+    } catch (err) {
+      console.error("❌ Error saving to DB:", err);
+      alert("❌ Failed to save data. Please check console for errors.");
+    }
+  };
 
   const EditableRow = ({ index, question, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -276,16 +275,8 @@ const saveQuestions = async () => {
 
       setStatus("📡 Sending extracted text to backend...");
 
-      const response = await fetch(
-        `http://localhost:4000/extract/extract-text`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: mergedText }),
-        }
-      );
-
-      const data = await response.json();
+      const res = await API.post("/extract/extract-text", { text: mergedText });
+      const data = res.data;
 
       if (!data) throw new Error("No data returned from backend");
 
