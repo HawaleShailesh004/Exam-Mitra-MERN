@@ -1,0 +1,95 @@
+.pdf-wrapper {
+    position: absolute;
+    z-index: -9999;
+    pointer-events: none;
+    height: auto;
+}
+
+.pdf-markdown {
+    color: black;
+}
+
+.pdf-markdown h1,
+.pdf-markdown h2,
+.pdf-markdown h3,
+.pdf-markdown h4 {
+    color: #000;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 0.75rem;
+    line-height: 1.9;
+}
+
+.pdf-markdown p {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: black;
+}
+
+.pdf-markdown ul,
+.pdf-markdown ol {
+    padding-left: 20px;
+    margin-bottom: 1rem;
+}
+
+.pdf-markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.75rem;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    -ms-border-radius: 0px;
+    -o-border-radius: 0px;
+}
+
+.pdf-markdown th,
+.pdf-markdown td {
+    border: 1px solid #aaa;
+    padding: 8px;
+    background-color: #f9f9f9;
+    text-align: left;
+    color: black;
+    border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    -ms-border-radius: 0px;
+    -o-border-radius: 0px;
+}
+
+.pdf-markdown {
+
+    & td,
+    th {
+        font-size: 0.8rem;
+    }
+
+    & ol,
+    ul,
+    li {
+        font-size: 0.75rem;
+    }
+}
+
+.pdf-markdown code {
+    background-color: #f4f4f4;
+    font-family: monospace;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.download-btn {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.download-btn:hover {
+    background-color: #1b5e20;
+}

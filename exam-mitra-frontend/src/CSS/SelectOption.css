@@ -1,0 +1,144 @@
+/* SelectOption.css */
+
+/* Heading */
+#head {
+  width: 100%;
+  text-align: center;
+  font-size: 1.7rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* Container holding the options side by side */
+.option-container {
+  padding: 1rem;
+  display: flex;
+  gap: 2rem;
+  width: 89%;
+  margin: auto;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+}
+
+/* Each individual option card */
+.option {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem;
+  width: 37%;
+  height: 22rem;
+  background-color: #f0f7f2; /* Light green background */
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px,
+    rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  position: relative;
+
+  animation: fadeIn 1s ease-out forwards;
+  opacity: 0;
+}
+
+/* Headings inside option */
+.option h3 {
+  font-size: 1.3rem;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+/* Image container */
+.option .img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12rem;
+  height: 12rem;
+  margin-bottom: 2rem;
+}
+
+/* Images inside option */
+.option img {
+  width: 10rem;
+  margin-bottom: 3rem;
+}
+
+/* Paragraph text */
+.option p {
+  font-size: 0.8rem;
+  margin-top: -0.7rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Button inside option */
+.option button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #002f00, #006016);
+  box-shadow:
+    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  position: absolute;
+  bottom: 2rem;
+
+  transition: all 0.3s ease;
+}
+
+.option button:hover {
+  background-color: rgba(9, 46, 9, 0.7);
+  scale: 1.03;
+}
+
+/* Fade-in keyframe */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+
+/* Tablets and below */
+@media (max-width: 768px) {
+  .option-container {
+    flex-direction: column;
+    width: 95%;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .option {
+    width: 90%;
+    height: auto;
+    padding-bottom: 4rem;
+  }
+
+  .option button {
+    position: static;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+     .option-container {
+    flex-direction: column;
+    width: 80%;
+    gap: 3rem;
+    align-items: center;
+  }
+}

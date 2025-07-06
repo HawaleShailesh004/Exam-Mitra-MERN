@@ -1,0 +1,382 @@
+/* Main page padding */
+.selection-page {
+  padding-top: 5rem;
+}
+
+/* Centered main content */
+.main-section {
+  text-align: center;
+  padding: 5rem;
+}
+
+/* Heading styles */
+.main-section h1 {
+  font-size: 28px;
+  color: var(--color-text-primary);
+}
+
+/* Paragraph styling */
+.main-section p {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: 30px;
+}
+
+/* Selection form grid container */
+.selection-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 1rem;
+  padding: 3rem 15rem;
+  margin: 0 auto;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown wrapper */
+.selection-form .dropdown {
+  margin-bottom: 15px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Dropdown label */
+.selection-form .dropdown label {
+  width: 60%;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--color-text-primary);
+  display: block;
+}
+
+/* Select inputs */
+.selection-form select {
+  width: 60%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-primary-light);
+  border-radius: 4px;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Disabled select styling */
+.selection-form select:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+/* Continue button */
+.selection-form button {
+  width: 50%;
+  margin: 1.5rem auto 0 auto;
+  grid-column: span 2;
+  padding: 1rem;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Disabled continue button */
+.selection-form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Hover effect */
+.selection-form button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+/* Info text below form */
+.selection-form .info-text {
+  font-size: 0.8rem;
+  grid-column: span 2;
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-top: -0.6rem;
+}
+
+#subject-dropdown {
+  grid-column: span 2;
+}
+
+/* Question papers table container */
+.qp-table-container {
+  margin: 3rem auto;
+  width: 90%;
+  animation: fadeSlideIn 0.6s ease-out forwards;
+}
+
+/* QPs table section */
+.qps-table-section {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+/* QPs table styling */
+.qps-table {
+  width: 80%;
+  border-collapse: collapse;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px;
+  font-size: 1rem;
+}
+
+/* Table header and cell styling */
+.qp-table th,
+.qp-table td {
+  border: 1px solid var(--color-text-primary);
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-text-inverted);
+}
+
+/* Table head background */
+.qp-table thead {
+  background-color: rgba(91, 142, 91, 0.2);
+}
+
+/* Hover highlight for rows */
+.qp-table tbody tr:hover {
+  background-color: rgba(9, 219, 93, 0.1);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Buttons in table */
+.qp-table-btn {
+  color: white;
+  margin-left: 1rem;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+/* Download button color */
+.download-btn {
+  background-color: rgb(0, 94, 255);
+}
+
+/* Action buttons color */
+.action-btn {
+  background: linear-gradient(135deg, #002f00, #006016);
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+
+/* Selected button styling */
+.selected {
+  background: linear-gradient(135deg, red, rgb(221, 50, 50));
+}
+
+/* Hover effect */
+.qp-table-btn:hover {
+  opacity: 0.7;
+}
+
+/* Selection summary text */
+.qp-selection-summary {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Extract questions button */
+.extract-btn {
+  margin-top: 2rem;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.extract-btn:hover {
+  background-color: var(--color-primary-dark);
+  opacity: 0.9;
+}
+
+/* Loading spinner container */
+.loading-div {
+  width: 100%;
+  padding: 10rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  animation: fadeSlideIn 0.5s ease-out;
+}
+
+/* Fade & slide in animation */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------- */
+/* Responsive Design for common breakpoints */
+/* -------------------------------------------- */
+
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
+  .selection-form {
+    padding: 2rem 5rem;
+    grid-template-columns: 1fr 1fr;
+    width: 90%;
+  }
+
+  .selection-form .dropdown label,
+  .selection-form select {
+    width: 100%;
+  }
+
+  .selection-form button {
+    width: 60%;
+  }
+
+  .qps-table {
+    width: 90%;
+    font-size: 0.95rem;
+  }
+}
+
+/* Tablets and large phones */
+@media (max-width: 768px) {
+  .selection-form {
+    padding: 1rem 2rem;
+    grid-template-columns: 1fr;
+  }
+
+  #button-td{
+    display: flex;
+    border: none;
+
+
+    & .qp-table-btn{
+      font-size: 0.6rem;
+      padding: 0.6rem;
+    }
+  }
+
+
+  .qps-table-section{
+    padding: 0.6rem;
+  }
+
+  .selection-form .dropdown {
+    margin-bottom: 1rem;
+  }
+
+  .selection-form .dropdown label,
+  .selection-form select {
+    width: 100%;
+  }
+
+  .selection-form button {
+    width: 80%;
+    padding: 12px;
+  }
+
+  .qps-table {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .main-section {
+    padding: 2rem 1rem;
+    margin-top: 3rem;
+  }
+
+  .selection-form {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  #subject-dropdown {
+    grid-column: span 1;
+  }
+
+  .selection-form .dropdown label,
+  .selection-form select {
+    width: 100%;
+    font-size: 0.7rem;
+  }
+
+  .selection-form button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .qps-table {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .qp-table th,
+  .qp-table td {
+    padding: 0.5rem;
+  }
+}
+
+
+.loader {
+  margin: 1rem auto;
+  grid-column: span 2;
+  width: 60px;
+  aspect-ratio: 4;
+  --_g: no-repeat radial-gradient(circle closest-side, var(--color-text-primary) 90%, #0000);
+  background:
+    var(--_g) 0% 50%,
+    var(--_g) 50% 50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 100%;
+  animation: l7 1s infinite linear;
+}
+
+@keyframes l7 {
+  33% {
+    background-size: calc(100%/3) 0%, calc(100%/3) 100%, calc(100%/3) 100%
+  }
+
+  50% {
+    background-size: calc(100%/3) 100%, calc(100%/3) 0%, calc(100%/3) 100%
+  }
+
+  66% {
+    background-size: calc(100%/3) 100%, calc(100%/3) 100%, calc(100%/3) 0%
+  }
+}

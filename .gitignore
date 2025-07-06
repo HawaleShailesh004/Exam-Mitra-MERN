@@ -1,0 +1,53 @@
+# Node modules (backend & frontend)
+**/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+eng.traineddata
+
+# Env files (for secrets)
+**/.env
+
+# Build output folders
+exam-mitra-frontend/build/
+exam-mitra-backend/dist/
+exam-mitra-backend/build/
+
+# Dependency directories
+**/package-lock.json
+**/yarn.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor folders and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Misc
+*.tgz
+*.bak
+*.swp
+
+# React specific
+exam-mitra-frontend/.cache/
+exam-mitra-frontend/.parcel-cache/
+
+tavily.html
+th.html
+
+exam-mitra-backend/.gitignore
+
+# Appwrite SDK or generated files (if any specific to your setup)
+# (Add here if you have any temporary or generated Appwrite files)
+
+# Others you want to exclude (add if needed)

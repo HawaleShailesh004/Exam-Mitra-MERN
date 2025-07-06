@@ -1,0 +1,44 @@
+.login-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+
+    & p {
+        text-align: center;
+        font-size: 1.3rem;
+        /* animation: blink 0.7s ease 0s infinite;
+        -webkit-animation: blink 0.7s ease 0s infinite; */
+    }
+
+}
+
+@keyframes blink {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* HTML:  */
+.loader {
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-text-primary);
+  --_m: 
+    conic-gradient(#0000 10%,var(--color-text-primary)),
+    linear-gradient(var(--color-text-primary) 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}
