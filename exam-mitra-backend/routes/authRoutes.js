@@ -8,7 +8,7 @@ import passport from "passport";
 import "../utils/passportSetup.js";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "shailesh_secret";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // @route POST /api/auth/register
 router.post(
