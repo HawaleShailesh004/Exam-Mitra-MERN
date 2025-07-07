@@ -27,14 +27,14 @@ const SelectionPage = () => {
   const semesters = [3, 4, 5, 6, 7, 8];
 
   const loadingMessages = [
-    "Analyzing your paper like a topper 🧠...",
-    "Scanning for important questions 📚...",
-    "Summoning the exam gods 🕉️...",
-    "Breaking down complex questions like a pro 🧩...",
-    "Extracting gold nuggets from question papers 💎...",
-    "Looking for the 5-marker questions you love 🔍...",
-    "Almost there... Stay sharp! ⚡",
-    "Thinking like an examiner 🤓...",
+    "Analyzing your paper like a topper 🧠",
+    "Scanning for important questions 📚",
+    "Summoning the exam gods 🕉️",
+    "Breaking down complex questions like a pro 🧩",
+    "Extracting gold nuggets from question papers 💎",
+    "Looking for the 5-marker questions you love 🔍",
+    "Almost there Stay sharp! ⚡",
+    "Thinking like an examiner 🤓",
   ];
 
   const romanNumerals = [

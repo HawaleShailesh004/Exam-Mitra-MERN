@@ -14,7 +14,7 @@ export function base64ToBlob(base64, mime = "application/pdf") {
 // Render PDF as images and do OCR using puter.ai
 export async function extractTextFromPdfUrlUsingOCR(url, setProgress) {
   setProgress?.("📦 Fetching PDF from backend...");
-  const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/fetch-pdfs-from-urls`, {
+  const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/extract/fetch-pdfs-from-urls`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ urls: [url] }),
