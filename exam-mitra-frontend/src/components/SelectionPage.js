@@ -37,7 +37,18 @@ const SelectionPage = () => {
     "Thinking like an examiner 🤓...",
   ];
 
-  const romanNumerals = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+  const romanNumerals = [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
+    "X",
+  ];
   const formatTitle = (title) =>
     title
       .split(" ")

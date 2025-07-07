@@ -8,7 +8,9 @@ router.get("/dropdowns/papers", async (req, res) => {
   const { branch, semester, subject } = req.query;
 
   if (!branch || !semester || !subject) {
-    return res.status(400).json({ error: "Missing branch, semester, or subject" });
+    return res
+      .status(400)
+      .json({ error: "Missing branch, semester, or subject" });
   }
 
   const kebabBranch = branch.toLowerCase().replace(/\s+/g, "-");
@@ -22,7 +24,11 @@ router.get("/dropdowns/papers", async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 }); // waits for all resources to load
+
+    await page.waitForSelector("th.thstyle center.responsivecolspan", {
+      timeout: 15000,
+    });
 
     const normalizedInputSubject = subject
       .toLowerCase()
@@ -74,7 +80,9 @@ router.get("/dropdowns/papers", async (req, res) => {
     await browser.close();
 
     if (!papers.length) {
-      return res.status(404).json({ error: "No papers found for this subject." });
+      return res
+        .status(404)
+        .json({ error: "No papers found for this subject." });
     }
 
     return res.json({ papers });
@@ -103,7 +111,11 @@ router.get("/dropdowns/subjects", async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 }); // waits for all resources to load
+
+    await page.waitForSelector("th.thstyle center.responsivecolspan", {
+      timeout: 15000,
+    });
 
     const subjects = await page.$$eval(
       "th.thstyle center.responsivecolspan",
