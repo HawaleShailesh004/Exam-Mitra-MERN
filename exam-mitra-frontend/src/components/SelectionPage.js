@@ -103,7 +103,7 @@ const SelectionPage = () => {
           ...sub,
           title: formatTitle(sub.title),
         }));
-        setSubjects(cleanedSubjects);
+        setSubjects(cleanedSubjects); //
       } catch (err) {
         console.error("Failed to fetch subjects:", err);
         setError("Unable to load subjects. Please try again.");
