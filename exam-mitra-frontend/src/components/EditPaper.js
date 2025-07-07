@@ -110,7 +110,7 @@ const EditPaper = () => {
       console.error("❌ Failed to save new questions", err);
       alert("❌ Failed to save new questions");
     }
-  };
+  }; // thiws
 
   if (loading) return <div className="loading-div">⏳ Loading Editor...</div>;
   if (error) return <div style={{ color: "red" }}>{error}</div>;
