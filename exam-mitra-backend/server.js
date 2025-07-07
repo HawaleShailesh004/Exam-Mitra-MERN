@@ -22,8 +22,13 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(passport.initialize());
 
+const allowedOrigins = [
+  process.env.CLIENT_URL, // frontend domain
+  "http://localhost:3000",         // dev
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: allowedOrigins,
   credentials: true,
 }));
 
