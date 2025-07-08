@@ -12,11 +12,14 @@ dotenv.config();
 async function getQuestionsFromText(extractedText) {
   const prompt = `You are given raw academic exam content. Your task is to extract academic-style exam questions from it.
 
-Each question belongs to a **single subject** and **single paper code**. All extracted questions must be merged into a single JSON array under one subject and paper code. 
+Each question belongs to a **single subject** and **single paper code**. All extracted questions must be merged into a single JSON array under one subject and paper code.
 
 For each extracted question:
 - Include the **text** of the question (remove duplicates).
-- Include the **marks** assigned the **first time** the question appeared (do not multiply marks by frequency).
+- Include the **marks** assigned the **first time** the question appeared.
+  - If a group of sub-questions is presented under a shared instruction like "Attempt any FOUR", and a **total mark (e.g., 20)** is given for the group, **assume equal distribution** of marks among the sub-questions (e.g., 5 marks each for 4 sub-questions).
+  - Handle sub-question labels like **a, b, c, d** etc. accordingly.
+  - Do **not assign the full group marks** to each sub-question.
 - Include **frequency**, i.e., how many times this exact question appears in the text.
 - Set **status** and **revision** fields as **false** (default values).
 - Number questions using a unique **id** starting from 1.
@@ -82,7 +85,7 @@ ${extractedText}`;
 router.post("/extract-text", async (req, res) => {
   try {
     const { text } = req.body;
-    console.log("Request for TExt Extraction")
+    console.log("Request for TExt Extraction");
 
     if (!text || typeof text !== "string" || text.trim().length < 10) {
       return res.status(400).json({ error: "Invalid or empty text provided." });
