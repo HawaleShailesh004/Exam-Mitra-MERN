@@ -99,11 +99,20 @@ const SelectionPage = () => {
         const res = await API.get("/dropdown/dropdowns/subjects", {
           params: { branch, semester },
         });
-        const cleanedSubjects = (res.data.subjects || []).map((sub) => ({
-          ...sub,
-          title: formatTitle(sub.title),
-        }));
-        setSubjects(cleanedSubjects); //
+
+        const seenTitles = new Set();
+        const cleanedSubjects = (res.data.subjects || [])
+          .map((sub) => ({
+            ...sub,
+            title: formatTitle(sub.title),
+          }))
+          .filter((sub) => {
+            if (seenTitles.has(sub.title)) return false;
+            seenTitles.add(sub.title);
+            return true;
+          });
+
+        setSubjects(cleanedSubjects);
       } catch (err) {
         console.error("Failed to fetch subjects:", err);
         setError("Unable to load subjects. Please try again.");
