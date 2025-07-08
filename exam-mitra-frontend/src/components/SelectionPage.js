@@ -134,7 +134,7 @@ const SelectionPage = () => {
 
     try {
       const res = await API.get("/dropdown/dropdowns/papers", {
-        params: {
+        params: { 
           branch,
           semester,
           subject: subject.title,
