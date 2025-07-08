@@ -10,7 +10,7 @@ dotenv.config();
 // 🧠 LLM Question Extraction
 // =======================
 async function getQuestionsFromText(extractedText) {
-  const prompt = `You are given raw academic exam content. Your task is to extract academic-style exam questions from it.
+  const prompt = `You are given raw academic exam content. Your task is to extract academic-style exam questions from it..
 
 Each question belongs to a **single subject** and **single paper code**. All extracted questions must be merged into a single JSON array under one subject and paper code.
 
