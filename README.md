@@ -34,7 +34,7 @@
 ---
 
 ## 🎥 Demo Video  
-🎬 [Watch Full Demo Video](https://www.linkedin.com/posts/shailesh-hawale_buildinpublic-exammitra-mernstack-activity-7348783463992283138-duBW?utm_source=share&utm_medium=member_desktop&rcm=ACoAADH9vgwBgri2KgwpndJM9WdKXNSM9DDfURo)
+🎬 [Watch Full Demo Video](https://youtu.be/BAvnYzU2WVs)
 
 ---
 
