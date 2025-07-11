@@ -76,17 +76,25 @@
 
 ## 🖼️ Screenshots
 
-| Landing Page | Select Option | Upload PDF |
-|--------------|----------------|-------------|
-| ![Landing](./screenshots/landing_page.png) | ![Select](./screenshots/select_option.png) | ![Upload](./screenshots/upload_pdf.png) |
+## 🖼️ Screenshots
 
-| Question Listing | Answer Page | Dashboard |
-|------------------|--------------|------------|
-| ![Questions](./screenshots/qs_listing.png) | ![Answer](./screenshots/answer.png) | ![Dashboard](./screenshots/dashboard.png) |
+| Landing Page | Login Page |
+|--------------|----------------|
+| ![Landing](./screenshots/landing_page.png) | ![Login](./screenshots/login.png) |
 
-| Browse Papers | Login Page |
+| Upload PDF | Select Option |
+|-------------|------------------|
+| ![Upload](./screenshots/upload_pdf.png) | ![Select](./screenshots/select_option.png) |
+
+| Question Listing | Answer Page |
+|--------------|-----------|
+| ![Questions](./screenshots/qs_listing.png) | ![Answer](./screenshots/answer.png)  |
+
+| Browse Papers | Dashboard |
 |----------------|-------------|
-| ![Browse](./screenshots/browse_papers.png) | ![Login](./screenshots/login.png) |
+| ![Browse](./screenshots/browse_papers.png) | ![Dashboard](./screenshots/dashboard.png) |
+
+
 
 ---
 
