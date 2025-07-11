@@ -108,9 +108,7 @@
 
 ### Backend
 - Node.js + Express.js  
-- MongoDB + Mongoose  
-- Passport.js (Google OAuth)  
-- Multer (PDF Uploads)  
+- MongoDB + Mongoose   
 - Puppeteer (Web Scraping)  
 - Nodemailer (Email Support)
 
