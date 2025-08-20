@@ -46,10 +46,9 @@
 - Edit extracted questions and assign marks  
 
 ### 🧠 Smart Question Management
-- Tag questions with **subject** & **paper info**  
 - Mark questions as **Done**, **Revision**, or **Pending**  
 - Sort and filter questions by **marks**, **frequency**, and more  
-- Edit or delete saved question papers  
+- Edit or delete saved questions or question papers  
 
 ### 📝 AI-Powered Assistance
 - Generate **answers in various ways** using LLM  
@@ -64,17 +63,18 @@
 - Secure backend with JWT-based authentication  
 
 ### 🧾 Export & Sharing
-- Export filtered questions and answers to **PDF**  
+- Export filtered questions and answers to **PDF** or **DOCX**  
 - Send messages via integrated **contact form** (Nodemailer)
 
-### 🌐 Web Scraping Integration
-- Scrape university papers directly from **MUQuestionPapers.com**  
+### 🌐 Database Integration
+- Scraped university papers directly from **MUQuestionPapers.com**  
+- Stored in MongoDB for faster Access
 
 ### 📚 Support & Help
 - FAQ section to address common questions  
 - Clean and intuitive UI with screenshot-guided interactions  
 
-## 🖼️ Screenshots
+
 
 ## 🖼️ Screenshots
 
@@ -109,13 +109,14 @@
 ### Backend
 - Node.js + Express.js  
 - MongoDB + Mongoose   
-- Puppeteer (Web Scraping)  
+- Puppeteer (Web Scraping) (Used Once to Scrap Data)
 - Nodemailer (Email Support)
+- Passport (Google OAuth)
 
 ### AI & Tools
 - OCR: [Puter.ai](https://www.puter.ai/)  
 - LLM: [LLaMA 70B via Groq API](https://groq.com/)  
-- Deployment: Vercel (Frontend), Railway (Backend), MongoDB Atlas (DB)
+- Deployment: Vercel (Frontend & Backend), MongoDB Atlas (DB)
 
 ---
 
@@ -125,14 +126,51 @@
 ## 📁 Folder Structure
 
 ```
-exammitra/
-├── exam-mitra-frontend/              # React frontend
-├── exam-mitra-backend/              # Express backend
-│   ├── routes/               
-│   ├── models/          
-│   └── utils/           
-├── screenshots/         # App screenshots for README/docs
-└── README.md
+├── .gitignore
+├── README.md                # Project documentation
+│
+├── exam-mitra-backend       # Backend (Express + MongoDB + Vercel)
+│   ├── api/                 # Vercel entrypoint for serverless deployment
+│   │   └── index.js
+│   ├── config/              # Configuration files
+│   │   └── dbConfig.js      # MongoDB connection setup
+│   ├── controllers/         # Route handlers (business logic)
+│   ├── middleware/          # Custom middleware
+│   │   └── auth.js          # JWT/Auth validation
+│   ├── models/              # Mongoose schemas & models
+│   │   ├── Data/            # Static data models
+│   │   │   ├── Course.js
+│   │   │   ├── QuestionPaper.js
+│   │   │   ├── Semester.js
+│   │   │   └── Subject.js
+│   │   └── User/            # User-related models
+│   │       ├── Paper.js
+│   │       ├── Question.js
+│   │       └── User.js
+│   ├── routes/              # API route definitions
+│   ├── utils/               # Helper utilities
+│   │   └── passportSetup.js # Passport.js Google OAuth config
+│   ├── server.js            # Express app entry point
+│   ├── package.json
+│   └── vercel.json          # Vercel deployment config
+│
+├── exam-mitra-frontend      # Frontend (React + Vite)
+│   ├── public/              # Static assets
+│   │   ├── images/          # App icons, hero images, etc.
+│   │   ├── index.html       # HTML entry point
+│   │   ├── manifest.json
+│   ├── screenshots/         # App screenshots for docs/demo
+│   ├── src/                 # React source code
+│   │   ├── App.js           # Root app component
+│   │   ├── index.js         # React DOM entry
+│   │   ├── CSS/             # Page/component styles
+│   │   ├── components/      # UI Components (pages, forms, etc.)
+│   │   └── utils/           # Helper functions (OCR, prompts, downloads)
+│   ├── package.json
+│   └── .gitignore
+│
+└── screenshots/             # General screenshots for README/demo
+
 ```
 
 ---

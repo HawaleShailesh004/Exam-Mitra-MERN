@@ -47,10 +47,6 @@ th.html
 bp.html
 bp.js
 
+exam-mitra-frontend/src/Database/
+exam-mitra-frontend/src/Database/**/*
 
-
-
-# Appwrite SDK or generated files (if any specific to your setup)
-# (Add here if you have any temporary or generated Appwrite files)
-
-# Others you want to exclude (add if needed)
