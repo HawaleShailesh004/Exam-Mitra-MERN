@@ -9,6 +9,8 @@ const OauthSuccess = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
 
+  const redirectPath = localStorage.getItem("uploadSource") || "/";
+
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("token");
 
@@ -23,7 +25,7 @@ const OauthSuccess = () => {
       })
         .then((res) => {
           setUser(res.data.user);
-          navigate("/dashboard");
+          navigate("/"+redirectPath);
         })
         .catch((err) => {
           console.error("OAuth login failed", err);

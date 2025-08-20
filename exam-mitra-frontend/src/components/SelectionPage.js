@@ -13,7 +13,7 @@ const SelectionPage = () => {
 
   const [branch, setBranch] = useState("");
   const [semester, setSemester] = useState("");
-  const [subject, setSubject] = useState(null);
+  const [subject, setSubject] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [qpLoading, setQpLoading] = useState(false);
@@ -61,7 +61,7 @@ const SelectionPage = () => {
 
   const handleBranchChange = (e) => {
     setBranch(e.target.value);
-    setSubject(null);
+    setSubject("");
     setQps([]);
     setSelectedQps([]);
   };
@@ -111,7 +111,7 @@ const SelectionPage = () => {
             seenTitles.add(sub.title);
             return true;
           });
-
+        console.log("Fetched subjects:", cleanedSubjects);
         setSubjects(cleanedSubjects);
       } catch (err) {
         console.error("Failed to fetch subjects:", err);
@@ -126,6 +126,7 @@ const SelectionPage = () => {
 
   const handleWebFetchStart = async () => {
     if (!branch || !semester || !subject) return;
+    console.log("Subject before sensing", subject.title);
 
     setQpLoading(true);
     setError("");
@@ -134,15 +135,16 @@ const SelectionPage = () => {
 
     try {
       const res = await API.get("/dropdown/dropdowns/papers", {
-        params: { 
+        params: {
           branch,
           semester,
-          subject: subject.title,
+          subject: subject.id,
         },
       });
 
       if (res.data?.papers?.length) {
         setQps(res.data.papers);
+        console.log(qps);
       } else {
         setError("No question papers found for selected subject.");
       }
@@ -240,8 +242,11 @@ const SelectionPage = () => {
             <div className="dropdown" id="subject-dropdown">
               <label>Subject:</label>
               <select
-                value={subject ? JSON.stringify(subject) : ""}
-                onChange={(e) => setSubject(JSON.parse(e.target.value))}
+                value={subject ? JSON.stringify(subject).title : ""}
+                onChange={(e) => {
+                  const selectedSubject = JSON.parse(e.target.value);
+                  setSubject(selectedSubject);
+                }}
                 disabled={!branch || !semester}
               >
                 <option value="">Select Subject</option>
@@ -263,7 +268,7 @@ const SelectionPage = () => {
               onClick={handleWebFetchStart}
               type="button"
             >
-              {qpLoading ? "Fetching..." : "Fetch QPs from Web"}
+              {qpLoading ? "Fetching..." : "Fetch Question Papers"}
             </button>
 
             {error && <p className="error-text">{error}</p>}
@@ -285,12 +290,12 @@ const SelectionPage = () => {
                 </thead>
                 <tbody>
                   {qps.map((qp, idx) => {
-                    const [month, year] = qp.title.split(" ");
+                    // const [month, year] = qp.title.split(" ");
                     const isSelected = selectedQps.includes(qp.url);
                     return (
                       <tr key={idx} className="fadeInRow">
-                        <td>{year}</td>
-                        <td>{month}</td>
+                        <td>{qp.month ? qp.month : "N/A"}</td>
+                        <td>{qp.year ? qp.year : "N/A"}</td>
                         <td>
                           <button
                             className={`qp-table-btn ${

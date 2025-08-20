@@ -11,8 +11,7 @@ const LoginSignup = () => {
 
   const { setUser } = useUser();
 
-  const redirectPath =
-    new URLSearchParams(location.search).get("redirect") || "/";
+  const redirectPath = localStorage.getItem("uploadSource") || "/";
 
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");

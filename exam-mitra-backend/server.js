@@ -14,6 +14,7 @@ import contactRoutes from "./routes/contactRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import paperRoutes from "./routes/paperRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js";
+import dbConnection from "./config/dbConfig.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -24,13 +25,15 @@ app.use(passport.initialize());
 
 const allowedOrigins = [
   process.env.CLIENT_URL, // frontend domain
-  "http://localhost:3000",         // dev
+  "http://localhost:3000", // dev
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // API Routes
 app.use("/auth", authRoutes);
@@ -40,14 +43,7 @@ app.use("/contact", contactRoutes);
 app.use("/papers", paperRoutes);
 app.use("/questions", questionRoutes);
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection failed:", err);
-  });
+dbConnection();
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
