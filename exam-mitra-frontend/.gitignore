@@ -7,5 +7,5 @@ yarn-error.log*
 .DS_Store
 .vscode/
 
-fetchITPapers.js
+fetchITPapers.js/
 src/Database/
