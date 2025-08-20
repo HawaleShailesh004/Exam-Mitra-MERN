@@ -38,7 +38,7 @@ const LoginSignup = () => {
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
 
-      navigate(redirectPath);
+      navigate("/" + redirectPath);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong");

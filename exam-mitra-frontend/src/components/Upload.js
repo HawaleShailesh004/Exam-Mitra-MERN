@@ -133,7 +133,7 @@ const Upload = () => {
           files: files.map((f) => f.name),
         };
         localStorage.setItem("uploadSession", JSON.stringify(backup));
-        localStorage.setItem("uploadSource", "upload");
+        localStorage.setItem("uploadSource", "/upload");
         navigate("/login");
       }
 

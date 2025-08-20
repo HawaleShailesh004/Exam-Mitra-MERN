@@ -25,7 +25,7 @@ const OauthSuccess = () => {
       })
         .then((res) => {
           setUser(res.data.user);
-          navigate(redirectPath ? "/" + redirectPath : "/dashboard");
+          navigate(redirectPath || "/dashboard");
         })
         .catch((err) => {
           console.error("OAuth login failed", err);
