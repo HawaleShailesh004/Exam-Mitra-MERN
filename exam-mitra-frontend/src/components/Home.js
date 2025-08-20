@@ -70,12 +70,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // Log user info when user state changes (for debugging)
-  useEffect(() => {
-    if (user) {
-      console.log("🟢 Logged in user:", user);
-    }
-  }, [user]);
+  
 
   return (
     <div className="homepage">

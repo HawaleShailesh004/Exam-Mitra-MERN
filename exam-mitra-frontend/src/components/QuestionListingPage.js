@@ -79,7 +79,7 @@ const QuestionListingPage = () => {
         const paperRes = await API.get(`/papers/${paperId}`);
         const paper = paperRes.data;
 
-        console.log(paper)
+
 
         setCurrentSubject({
           subject: paper.title,
@@ -99,7 +99,7 @@ const QuestionListingPage = () => {
         }));
 
         setQuestions(transformed);
-        console.log(transformed)
+     
         setLoading(false);
       } catch (err) {
         console.error("❌ Error:", err);

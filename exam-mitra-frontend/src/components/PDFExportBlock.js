@@ -4,15 +4,6 @@ import remarkGfm from "remark-gfm";
 import "../CSS/PdfStyles.css";
 
 const PDFExportBlock = forwardRef(({ subjectName, questions }, ref) => {
-  useEffect(() => {
-    console.log("📄 Rendering PDFExportBlock...");
-    console.log("📚 Subject:", subjectName);
-    console.log(
-      "📋 Questions received:",
-      questions ? questions.length : "No Q"
-    );
-  }, [subjectName, questions]);
-
   const qaContent = questions
     .map((q, i) => {
       let answerContent = "NA";

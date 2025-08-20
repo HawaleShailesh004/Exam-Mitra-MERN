@@ -111,7 +111,7 @@ const SelectionPage = () => {
             seenTitles.add(sub.title);
             return true;
           });
-        console.log("Fetched subjects:", cleanedSubjects);
+ 
         setSubjects(cleanedSubjects);
       } catch (err) {
         console.error("Failed to fetch subjects:", err);
@@ -126,7 +126,7 @@ const SelectionPage = () => {
 
   const handleWebFetchStart = async () => {
     if (!branch || !semester || !subject) return;
-    console.log("Subject before sensing", subject.title);
+ 
 
     setQpLoading(true);
     setError("");
@@ -144,7 +144,7 @@ const SelectionPage = () => {
 
       if (res.data?.papers?.length) {
         setQps(res.data.papers);
-        console.log(qps);
+   
       } else {
         setError("No question papers found for selected subject.");
       }
