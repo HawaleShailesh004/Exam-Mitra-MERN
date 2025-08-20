@@ -35,6 +35,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.send("ExamMitra backend is running on Vercel!");
+});
+
 // API Routes
 app.use("/auth", authRoutes);
 app.use("/extract", extractRoutes);
