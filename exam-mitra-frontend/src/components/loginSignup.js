@@ -19,12 +19,38 @@ const LoginSignup = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!isLogin && !name.trim()) {
+      errors.name = "Full name is required";
+    }
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Enter a valid email address";
+    }
+
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    if (!validateForm()) return; // stop if errors
+
+    setLoading(true);
     try {
       let response;
       if (isLogin) {
@@ -57,13 +83,37 @@ const LoginSignup = () => {
         <h2>{isLogin ? "Login" : "Sign Up"}</h2>
 
         {!isLogin && (
-          <input
-            type="text"
-            placeholder="Full Name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            {validationErrors.name && (
+              <p className="error-msg">{validationErrors.name}</p>
+            )}
+          </>
+        )}
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        {validationErrors.email && (
+          <p className="error-msg">{validationErrors.email}</p>
+        )}
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {validationErrors.password && (
+          <p className="error-msg">{validationErrors.password}</p>
         )}
 
         <input
