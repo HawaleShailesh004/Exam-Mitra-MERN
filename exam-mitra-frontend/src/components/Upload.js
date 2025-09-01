@@ -9,8 +9,6 @@ import Footer from "../components/Footer";
 
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
-import { ID } from "appwrite";
-import { databases } from "../Database/appwriteConfig";
 
 import { pdfToImageDataURLs } from "../utils/pdfToImages.js";
 

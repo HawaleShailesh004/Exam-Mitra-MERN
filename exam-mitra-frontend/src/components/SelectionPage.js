@@ -6,7 +6,7 @@ import "../CSS/SelectionPage.css";
 import { useNavigate } from "react-router-dom";
 import { extractTextFromPdfUrlUsingOCR } from "../utils/ocrPdfFromUrl";
 import branchesList from "../utils/branches.js";
-import API from "../utils/api"; // ✅ use centralized axios
+import API from "../utils/api";
 
 const SelectionPage = () => {
   const navigate = useNavigate();
