@@ -25,6 +25,7 @@ Return a **JSON array**. Each item represents a single paper:
 
 ⚠️ Output ONLY the JSON array. No commentary, no markdown, no code formatting.
 
+
 Format example:
 [
   {

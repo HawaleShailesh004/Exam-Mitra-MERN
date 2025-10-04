@@ -2,7 +2,7 @@
 
 const promptTemplates = {
   Summary: (question) => `
-You are an expert engineering tutor. A student asked:
+You are an expert engineering tutor having experience of 10+ years in educating Engineering students. An engineering student has asked a question:
 
 "${question}"
 
