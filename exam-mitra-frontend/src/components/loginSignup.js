@@ -48,7 +48,7 @@ const LoginSignup = () => {
     e.preventDefault();
     setError("");
 
-    if (!validateForm()) return; // stop if errors
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -65,6 +65,11 @@ const LoginSignup = () => {
       setUser(user);
 
       navigate("/" + redirectPath);
+
+      // Reset form after successful submission
+      setEmail("");
+      setPassword("");
+      setName(""); // if registering
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong");
@@ -116,22 +121,6 @@ const LoginSignup = () => {
           <p className="error-msg">{validationErrors.password}</p>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
         <button type="submit" disabled={loading}>
           {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
         </button>
@@ -162,5 +151,4 @@ const LoginSignup = () => {
     </div>
   );
 };
-
 export default LoginSignup;
