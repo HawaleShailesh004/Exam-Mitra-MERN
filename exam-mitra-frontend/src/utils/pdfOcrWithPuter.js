@@ -2,6 +2,7 @@
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import "pdfjs-dist/build/pdf.worker.entry";
 
+// Changes Made in this to improve performance
 export async function extractTextFromPDF(file, setProgress) {
   const pdfData = new Uint8Array(await file.arrayBuffer());
   const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
